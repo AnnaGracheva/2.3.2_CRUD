@@ -1,30 +1,47 @@
 package web.dao;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import web.model.User;
 
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.List;
 
-@Component
+@Repository
 public class UserDao {
-    private List<User> users;
 
-    {
-        users = new ArrayList<>();
-
-        users.add(new User(1, "Thomas", "Shord", "thomas_shord@new-mail.ru"));
-        users.add(new User(2, "Erick", "Pierce", "erick_pierce@new-mail.ru"));
-        users.add(new User(3, "William", "Peters", "william_peters@new-mail.ru"));
-        users.add(new User(4, "Grace", "Walsh", "grace_walsh@new-mail.ru"));
-        users.add(new User(5, "Katherine", "McCarthy", "katherine_mccarthy@new-mail.ru"));
-    }
+    @PersistenceContext
+    protected EntityManager entityManager;
 
     public List<User> listOfUsers() {
-        return users;
+        String queryString = "FROM User";
+
+        Query query = entityManager.createQuery(queryString);
+
+        return (List<User>) query.getResultList();
     }
 
-    public User userById(int id) {
-        return users.stream().filter(user -> user.getId() == id).findAny().orElse(null);
+    public User userById(Long id) {
+        User user = (User) entityManager.find(User.class, id);
+        return user;
     }
+
+    public void saveUser(User user) {
+        entityManager.persist(user);
+    }
+
+    public void updateUser(User user) {
+        entityManager.merge(user);
+    }
+
+    public void deleteUser(Long id) {
+        User user = userById(id);
+        if (entityManager.contains(user)) {
+            entityManager.remove(user);
+        } else {
+            entityManager.remove(entityManager.merge(user));
+        }
+    }
+
 }
