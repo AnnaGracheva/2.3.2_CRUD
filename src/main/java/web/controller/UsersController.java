@@ -5,28 +5,28 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import web.model.User;
-import web.service.UserService;
+import web.service.UserServiceImpl;
 
 @Controller
 @RequestMapping("/users")
 public class UsersController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @Autowired
-    public UsersController(UserService userService) {
-        this.userService = userService;
+    public UsersController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     @GetMapping
     public String listOfUsers(Model model) {
-        model.addAttribute("users", userService.listOfUsers());
+        model.addAttribute("users", userServiceImpl.listOfUsers());
         return "users/listOfUsers";
     }
 
     @GetMapping("/{id}")
     public String userById(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("user", userService.userById(id));
+        model.addAttribute("user", userServiceImpl.userById(id));
         return "users/userById";
     }
 
@@ -39,29 +39,29 @@ public class UsersController {
 
     @PostMapping()
     public String createUser(@ModelAttribute("user") User user) {
-        userService.saveUser(user);
+        userServiceImpl.saveUser(user);
         return "redirect:/users";
     }
 
     @GetMapping("/{id}/edit")
     public String editUser(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("user", userService.userById(id));
+        model.addAttribute("user", userServiceImpl.userById(id));
         return "users/edit";
     }
 
     @PatchMapping("/{id}")
     public String updateUser(@ModelAttribute("user") User user, @PathVariable("id") Long id) {
-        User userToUpdate = userService.userById(id);
+        User userToUpdate = userServiceImpl.userById(id);
         userToUpdate.setName(user.getName());
         userToUpdate.setLastName(user.getLastName());
         userToUpdate.setEmail(user.getEmail());
-        userService.updateUser(userToUpdate);
+        userServiceImpl.updateUser(userToUpdate);
         return "redirect:/users";
     }
 
     @DeleteMapping("/{id}")
     public String deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
+        userServiceImpl.deleteUser(id);
         return "redirect:/users";
     }
 }
